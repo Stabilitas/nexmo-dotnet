@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
+using Nexmo.Api.Exceptions;
 
 namespace Nexmo.Api.Request
 {
@@ -129,7 +130,7 @@ namespace Nexmo.Api.Request
             };
             VersionedApiRequest.SetUserAgent(ref req);
 
-            using (Configuration.Instance.ApiLogger.BeginScope("ApiRequest.DoRequest {0}",uri.GetHashCode()))
+            using (Configuration.Instance.ApiLogger.BeginScope("ApiRequest.DoRequest {0}", uri.GetHashCode()))
             {
                 Configuration.Instance.ApiLogger.LogDebug($"GET {uri}");
                 var sendTask = Configuration.Instance.Client.SendAsync(req);
@@ -170,7 +171,7 @@ namespace Nexmo.Api.Request
                 Method = new HttpMethod(method),
             };
             VersionedApiRequest.SetUserAgent(ref req);
-            
+
             var data = Encoding.ASCII.GetBytes(sb.ToString());
             req.Content = new ByteArrayContent(data);
             req.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
@@ -184,10 +185,11 @@ namespace Nexmo.Api.Request
                 if (!sendTask.Result.IsSuccessStatusCode)
                 {
                     Configuration.Instance.ApiLogger.LogError($"FAIL: {sendTask.Result.StatusCode}");
-                    return new NexmoResponse
-                    {
-                        Status = sendTask.Result.StatusCode
-                    };
+                    throw NexmoResponseExceptionFactory.CreateForResponse(sendTask.Result.StatusCode);
+                    // return new NexmoResponse
+                    // {
+                    //     Status = sendTask.Result.StatusCode
+                    // };
                 }
 
                 string json;
@@ -209,7 +211,7 @@ namespace Nexmo.Api.Request
         internal static NexmoResponse DoPostRequest(Uri uri, object parameters, Credentials creds = null)
         {
             var apiParams = GetParameters(parameters);
-            return DoPostRequest(uri, apiParams, creds);            
+            return DoPostRequest(uri, apiParams, creds);
         }
 
         internal static NexmoResponse DoPostRequest(Uri uri, Dictionary<string, string> parameters, Credentials creds = null) => DoRequest("POST", uri, parameters, creds);

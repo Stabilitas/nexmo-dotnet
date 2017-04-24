@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
+using Nexmo.Api.Exceptions;
 
 namespace Nexmo.Api.Request
 {
@@ -69,7 +70,7 @@ namespace Nexmo.Api.Request
         {
             if (string.IsNullOrEmpty(_userAgent))
             {
-// #if NETSTANDARD1_6
+                // #if NETSTANDARD1_6
                 // TODO: watch the next core release; may have functionality to make this cleaner
                 var runtimeVersion = (System.Runtime.InteropServices.RuntimeInformation.OSDescription + System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription)
                     .Replace(" ", "")
@@ -78,11 +79,11 @@ namespace Nexmo.Api.Request
                     .Replace(";", "")
                     .Replace("_", "")
                     ;
-// #else
-//                 var runtimeVersion = System.Diagnostics.FileVersionInfo
-//                     .GetVersionInfo(typeof(int).GetTypeInfo().Assembly.Location)
-//                     .ProductVersion;
-// #endif
+                // #else
+                //                 var runtimeVersion = System.Diagnostics.FileVersionInfo
+                //                     .GetVersionInfo(typeof(int).GetTypeInfo().Assembly.Location)
+                //                     .ProductVersion;
+                // #endif
                 var libraryVersion = typeof(VersionedApiRequest)
                     .GetTypeInfo()
                     .Assembly
@@ -138,10 +139,11 @@ namespace Nexmo.Api.Request
                 if (!sendTask.Result.IsSuccessStatusCode)
                 {
                     Configuration.Instance.ApiLogger.LogError($"FAIL: {sendTask.Result.StatusCode}");
-                    return new NexmoResponse
-                    {
-                        Status = sendTask.Result.StatusCode
-                    };
+                    throw NexmoResponseExceptionFactory.CreateForResponse(sendTask.Result.StatusCode);
+                    // return new NexmoResponse
+                    // {
+                    //     Status = sendTask.Result.StatusCode
+                    // };
                 }
 
                 string json;
