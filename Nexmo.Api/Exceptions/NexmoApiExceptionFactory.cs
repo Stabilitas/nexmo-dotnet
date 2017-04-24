@@ -2,7 +2,7 @@ using System.Net;
 
 namespace Nexmo.Api.Exceptions
 {
-    public static class NexmoResponseExceptionFactory
+    public static class NexmoApiExceptionFactory
     {
         public static NexmoApiException CreateForResponse(HttpStatusCode status)
         {

@@ -185,7 +185,7 @@ namespace Nexmo.Api.Request
                 if (!sendTask.Result.IsSuccessStatusCode)
                 {
                     Configuration.Instance.ApiLogger.LogError($"FAIL: {sendTask.Result.StatusCode}");
-                    throw NexmoResponseExceptionFactory.CreateForResponse(sendTask.Result.StatusCode);
+                    throw NexmoApiExceptionFactory.CreateForResponse(sendTask.Result.StatusCode);
                     // return new NexmoResponse
                     // {
                     //     Status = sendTask.Result.StatusCode
