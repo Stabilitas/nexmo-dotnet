@@ -68,37 +68,7 @@ namespace Nexmo.Api.Request
         private static string _userAgent;
         internal static void SetUserAgent(ref HttpRequestMessage request)
         {
-            if (string.IsNullOrEmpty(_userAgent))
-            {
-                // #if NETSTANDARD1_6
-                // TODO: watch the next core release; may have functionality to make this cleaner
-                var runtimeVersion = (System.Runtime.InteropServices.RuntimeInformation.OSDescription + System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription)
-                    .Replace(" ", "")
-                    .Replace("/", "")
-                    .Replace(":", "")
-                    .Replace(";", "")
-                    .Replace("_", "")
-                    ;
-                // #else
-                //                 var runtimeVersion = System.Diagnostics.FileVersionInfo
-                //                     .GetVersionInfo(typeof(int).GetTypeInfo().Assembly.Location)
-                //                     .ProductVersion;
-                // #endif
-                var libraryVersion = typeof(VersionedApiRequest)
-                    .GetTypeInfo()
-                    .Assembly
-                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                    .InformationalVersion;
-
-                _userAgent = $"nexmo-dotnet/{libraryVersion} dotnet/{runtimeVersion}";
-
-                var appVersion = Configuration.Instance.Settings["appSettings:Nexmo.UserAgent"];
-                if (!string.IsNullOrWhiteSpace(appVersion))
-                {
-                    _userAgent += $" {appVersion}";
-                }
-            }
-
+            _userAgent = "beacon-telco-nexmo";
             request.Headers.UserAgent.ParseAdd(_userAgent);
         }
 
